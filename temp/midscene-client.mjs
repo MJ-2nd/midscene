@@ -38,7 +38,10 @@ class MidsceneMCPClient {
    * MCP 엔드포인트에 JSON-RPC 요청을 보냅니다.
    */
   async sendRequest(method, params = {}) {
-    const headers = { 'Content-Type': 'application/json' };
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json, text/event-stream',
+    };
     if (this.sessionId) {
       headers['mcp-session-id'] = this.sessionId;
     }
@@ -67,7 +70,31 @@ class MidsceneMCPClient {
       throw new Error(`HTTP ${res.status}: ${text}`);
     }
 
-    const json = await res.json();
+    const contentType = res.headers.get('content-type') || '';
+
+    let json;
+    if (contentType.includes('text/event-stream')) {
+      // SSE 응답 파싱: 여러 이벤트 중 JSON-RPC 응답(message 이벤트)을 추출
+      const text = await res.text();
+      const lines = text.split('\n');
+      let eventType = '';
+      for (const line of lines) {
+        if (line.startsWith('event:')) {
+          eventType = line.slice(6).trim();
+        } else if (line.startsWith('data:')) {
+          const data = line.slice(5).trim();
+          if (eventType === 'message' && data) {
+            json = JSON.parse(data);
+            break;
+          }
+        }
+      }
+      if (!json) {
+        throw new Error('SSE 응답에서 JSON-RPC message를 찾을 수 없습니다.');
+      }
+    } else {
+      json = await res.json();
+    }
 
     if (json.error) {
       throw new Error(`MCP Error [${json.error.code}]: ${json.error.message}`);
