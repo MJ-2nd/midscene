@@ -1,13 +1,13 @@
 /**
- * Midscene MCP HTTP Client
+ * Midscene Playground REST API Client
  *
- * Android MCP 서버에 HTTP로 요청을 보내는 클라이언트.
- * MCP 프로토콜(JSON-RPC 2.0)을 사용하여 세션 관리, 도구 목록 조회, 액션 실행을 수행합니다.
+ * Android Playground 서버의 REST API를 사용하여 자연어로 디바이스를 제어합니다.
+ * agent.aiAct()를 통해 AI가 스크린샷 분석 → 요소 탐지 → 액션 실행을 자동 처리합니다.
  *
  * 사전 조건:
  *   1. .env 파일에 MIDSCENE_MODEL_* 환경 변수 설정
- *   2. Android MCP 서버 실행:
- *      npx @midscene/android-mcp --mode=http --port=3000 --host=0.0.0.0
+ *   2. Android Playground 서버 실행:
+ *      npx @midscene/android-playground
  *
  * 사용법:
  *   node midscene-client.mjs
@@ -20,200 +20,107 @@
 const BASE_URL = 'http://localhost:3000';
 
 // ============================================================
-// MCP 클라이언트
+// Playground REST API 클라이언트
 // ============================================================
 
-class MidsceneMCPClient {
+class MidsceneClient {
   constructor(baseUrl) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
-    this.sessionId = null;
-    this.requestId = 0;
-  }
-
-  nextId() {
-    return ++this.requestId;
   }
 
   /**
-   * MCP 엔드포인트에 JSON-RPC 요청을 보냅니다.
+   * REST API 요청을 보냅니다.
    */
-  async sendRequest(method, params = {}) {
-    const headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json, text/event-stream',
-    };
-    if (this.sessionId) {
-      headers['mcp-session-id'] = this.sessionId;
-    }
-
-    const body = {
-      jsonrpc: '2.0',
+  async request(method, path, body = null) {
+    const options = {
       method,
-      params,
-      id: this.nextId(),
+      headers: { 'Content-Type': 'application/json' },
     };
-
-    const res = await fetch(`${this.baseUrl}/mcp`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-    });
-
-    // 첫 요청(initialize)의 응답 헤더에서 세션 ID 저장
-    const newSessionId = res.headers.get('mcp-session-id');
-    if (newSessionId) {
-      this.sessionId = newSessionId;
+    if (body) {
+      options.body = JSON.stringify(body);
     }
+
+    const res = await fetch(`${this.baseUrl}${path}`, options);
 
     if (!res.ok) {
       const text = await res.text();
       throw new Error(`HTTP ${res.status}: ${text}`);
     }
 
-    const contentType = res.headers.get('content-type') || '';
-
-    let json;
-    if (contentType.includes('text/event-stream')) {
-      // SSE 응답 파싱: 여러 이벤트 중 JSON-RPC 응답(message 이벤트)을 추출
-      const text = await res.text();
-      const lines = text.split('\n');
-      let eventType = '';
-      for (const line of lines) {
-        if (line.startsWith('event:')) {
-          eventType = line.slice(6).trim();
-        } else if (line.startsWith('data:')) {
-          const data = line.slice(5).trim();
-          if (eventType === 'message' && data) {
-            json = JSON.parse(data);
-            break;
-          }
-        }
-      }
-      if (!json) {
-        throw new Error('SSE 응답에서 JSON-RPC message를 찾을 수 없습니다.');
-      }
-    } else {
-      json = await res.json();
-    }
-
-    if (json.error) {
-      throw new Error(`MCP Error [${json.error.code}]: ${json.error.message}`);
-    }
-
-    return json.result;
+    return res.json();
   }
 
   // ----------------------------------------------------------
-  // 1단계: 세션 초기화
+  // 서버 상태 확인
   // ----------------------------------------------------------
-  async initialize() {
-    console.log('[1/4] 세션 초기화 중...');
-
-    const result = await this.sendRequest('initialize', {
-      protocolVersion: '2024-11-05',
-      capabilities: {},
-      clientInfo: {
-        name: 'midscene-http-client',
-        version: '1.0.0',
-      },
-    });
-
-    console.log(`  세션 ID: ${this.sessionId}`);
-    console.log(`  서버: ${result.serverInfo?.name} v${result.serverInfo?.version}`);
+  async checkStatus() {
+    console.log('[1/2] 서버 상태 확인 중...');
+    const result = await this.request('GET', '/status');
+    console.log(`  서버 상태: ${result.status}, ID: ${result.id}`);
     return result;
   }
 
   // ----------------------------------------------------------
-  // 2단계: 사용 가능한 도구 목록 조회
+  // 자연어 AI 액션 실행 (핵심 기능)
+  // AI가 스크린샷을 분석하고 적절한 액션을 자동 수행
   // ----------------------------------------------------------
-  async listTools() {
-    console.log('[2/4] 사용 가능한 도구 조회 중...');
+  async aiAct(prompt) {
+    console.log(`[2/2] AI 액션: "${prompt}" ...`);
 
-    const result = await this.sendRequest('tools/list', {});
-    const tools = result.tools || [];
-
-    console.log(`  총 ${tools.length}개 도구 발견:`);
-    for (const tool of tools) {
-      console.log(`    - ${tool.name}: ${tool.description?.slice(0, 60)}...`);
-    }
-    return tools;
-  }
-
-  // ----------------------------------------------------------
-  // 3단계: Android 디바이스 연결
-  // ----------------------------------------------------------
-  async connectDevice(deviceId) {
-    console.log('[3/4] Android 디바이스 연결 중...');
-
-    const args = {};
-    if (deviceId) {
-      args.deviceId = deviceId;
-    }
-
-    const result = await this.sendRequest('tools/call', {
-      name: 'android_connect',
-      arguments: args,
+    const result = await this.request('POST', '/execute', {
+      type: 'aiAct',
+      prompt,
     });
 
-    const textContent = result.content?.find((c) => c.type === 'text');
-    console.log(`  ${textContent?.text || '연결 완료'}`);
-    return result;
-  }
-
-  // ----------------------------------------------------------
-  // 4단계: AI 액션 실행 (자연어 명령)
-  // ----------------------------------------------------------
-  async executeAction(toolName, args = {}) {
-    console.log(`[4/4] 액션 실행: "${toolName}" ...`);
-
-    const result = await this.sendRequest('tools/call', {
-      name: toolName,
-      arguments: args,
-    });
-
-    for (const item of result.content || []) {
-      if (item.type === 'text') {
-        console.log(`  결과: ${item.text}`);
-      }
-      if (item.type === 'image') {
-        console.log(`  스크린샷 수신 (${item.mimeType}, ${item.data?.length} chars base64)`);
-      }
+    if (result.error) {
+      throw new Error(`실행 오류: ${result.error}`);
     }
 
+    console.log('  완료!');
     return result;
   }
 
   // ----------------------------------------------------------
   // 스크린샷 촬영
   // ----------------------------------------------------------
-  async takeScreenshot() {
+  async screenshot() {
     console.log('스크린샷 촬영 중...');
-
-    const result = await this.sendRequest('tools/call', {
-      name: 'take_screenshot',
-      arguments: {},
-    });
-
-    const img = result.content?.find((c) => c.type === 'image');
-    if (img) {
-      console.log(`  스크린샷 수신 (${img.mimeType}, ${img.data?.length} chars base64)`);
+    const result = await this.request('GET', '/screenshot');
+    if (result.screenshot) {
+      console.log(`  스크린샷 수신 (${result.screenshot.length} chars base64)`);
     }
     return result;
   }
 
   // ----------------------------------------------------------
-  // 디바이스 연결 해제
+  // AI 어설션 (화면 상태 검증)
   // ----------------------------------------------------------
-  async disconnect() {
-    console.log('디바이스 연결 해제 중...');
-
-    const result = await this.sendRequest('tools/call', {
-      name: 'android_disconnect',
-      arguments: {},
+  async aiAssert(prompt) {
+    console.log(`AI 검증: "${prompt}" ...`);
+    const result = await this.request('POST', '/execute', {
+      type: 'aiAssert',
+      prompt,
     });
+    if (result.error) {
+      throw new Error(`검증 오류: ${result.error}`);
+    }
+    console.log(`  결과: ${JSON.stringify(result.result)}`);
+    return result;
+  }
 
-    const textContent = result.content?.find((c) => c.type === 'text');
-    console.log(`  ${textContent?.text || '해제 완료'}`);
+  // ----------------------------------------------------------
+  // AI 데이터 추출
+  // ----------------------------------------------------------
+  async aiQuery(prompt) {
+    console.log(`AI 쿼리: "${prompt}" ...`);
+    const result = await this.request('POST', '/execute', {
+      type: 'aiQuery',
+      prompt,
+    });
+    if (result.error) {
+      throw new Error(`쿼리 오류: ${result.error}`);
+    }
+    console.log(`  결과: ${JSON.stringify(result.result)}`);
     return result;
   }
 }
@@ -223,34 +130,21 @@ class MidsceneMCPClient {
 // ============================================================
 
 async function main() {
-  const client = new MidsceneMCPClient(BASE_URL);
+  const client = new MidsceneClient(BASE_URL);
 
   try {
-    // 1. 세션 초기화
-    await client.initialize();
+    // 1. 서버 상태 확인
+    await client.checkStatus();
 
-    // 2. 도구 목록 조회
-    await client.listTools();
+    // 2. 자연어로 명령 - AI가 알아서 처리!
+    await client.aiAct('open settings app');
 
-    // 3. 디바이스 연결
-    await client.connectDevice();
-
-    // 4. "open setting app" 실행
-    //    Android actionSpace에서 생성된 도구 이름 사용
-    //    Tap, Input, Scroll 등은 agent.aiAction()을 통해 자연어로 처리됨
-    await client.executeAction('Tap', {
-      locate: { prompt: 'Settings app icon' },
-    });
-
-    // 또는 다른 액션 예시:
-    // await client.executeAction('Scroll', { direction: 'down', scrollType: 'once' });
-    // await client.executeAction('Input', { value: 'hello', locate: { prompt: 'search box' } });
-
-    // 스크린샷 확인
-    await client.takeScreenshot();
-
-    // 연결 해제
-    await client.disconnect();
+    // 추가 예시:
+    // await client.aiAct('scroll down');
+    // await client.aiAct('tap on Wi-Fi');
+    // await client.aiAct('go back');
+    // await client.aiAssert('Settings app is open');
+    // await client.aiQuery('what menu items are visible?');
   } catch (err) {
     console.error('오류 발생:', err.message);
     process.exit(1);
