@@ -26,10 +26,15 @@ const BASE_URL = 'http://localhost:5800';
 // ============================================================
 
 class MidsceneClient {
-  constructor(baseUrl) {
+  constructor(baseUrl, messages) {
     this.baseUrl = baseUrl.replace(/\/$/, '');
     this.currentRequestId = null;
     this._pollTimer = null;
+
+    if (messages === undefined) {
+      messages = []
+    }
+    this.messages = messages
   }
 
   async request(method, path, body = null) {
@@ -86,7 +91,18 @@ class MidsceneClient {
 
       const type = task.subType || task.type;
       const desc = this.taskDescription(task);
-      console.log(`  [${task.status}] ${type}${desc ? ' - ' + desc : ''}`);
+
+
+      const msg = {
+        type: 'system',
+        content: `${type}${desc ? ' - ' + desc : ''}`,
+        timestamp : new Date()
+      }
+      if (task.status === 'finished') {
+        this.messages.push(msg)
+      }
+
+      console.log(msg)
     }
   }
 
