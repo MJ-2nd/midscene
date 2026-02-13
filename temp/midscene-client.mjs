@@ -62,7 +62,7 @@ class MidsceneClient {
 
   async getTaskProgress(requestId) {
     try {
-      return await this.request('GET', `/task-progress/${encodeURIComponent(requestId)}`);
+      return await this.request('GET', `/task-progress/${requestId}`);
     } catch {
       return {};
     }
@@ -180,7 +180,7 @@ class MidsceneClient {
   }
 
   async cancel(requestId) {
-    return this.request('POST', `/cancel/${encodeURIComponent(requestId)}`);
+    return this.request('POST', `/cancel/${requestId}`);
   }
 
   // ----------------------------------------------------------
