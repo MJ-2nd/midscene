@@ -246,10 +246,10 @@ export const parseOpenaiSdkConfig = ({
     intent: '-' as any,
     timeout: provider[keys.timeout]
       ? Number(provider[keys.timeout])
-      : undefined,
+      : 10000,
     temperature,
     retryCount: (() => {
-      if (!provider[keys.retryCount]) return 1;
+      if (!provider[keys.retryCount]) return 10;
       const val = Number(provider[keys.retryCount]);
       if (!Number.isFinite(val)) return 1;
       if (val < 0)

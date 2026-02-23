@@ -488,9 +488,9 @@ export async function callAI(
       );
     } else {
       // Non-streaming with retry logic
-      const retryCount = modelConfig.retryCount ?? 1;
+      const retryCount = modelConfig.retryCount ?? 10;
       const retryInterval = modelConfig.retryInterval ?? 2000;
-      const maxAttempts = retryCount + 1; // retryCount=1 means 2 total attempts (1 initial + 1 retry)
+      const maxAttempts = retryCount + 1; // retryCount=10 means 11 total attempts (1 initial + 10 retries)
 
       let lastError: Error | undefined;
 
