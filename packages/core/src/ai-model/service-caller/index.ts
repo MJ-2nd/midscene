@@ -509,6 +509,18 @@ export async function callAI(
             { signal: attemptSignal },
           );
 
+        try {
+          const result = await completion.create(
+            {
+              model: modelName,
+              messages,
+              ...commonConfig,
+              ...deepThinkConfig,
+            } as any,
+            { signal: abortController.signal },
+          );
+
+          clearTimeout(abortTimer);
           timeCost = Date.now() - startTime;
 
           debugProfileStats(
@@ -546,6 +558,7 @@ export async function callAI(
 
           break; // Success, exit retry loop
         } catch (error) {
+          clearTimeout(abortTimer);
           lastError = error as Error;
           const wasHardTimeout = isHardTimeoutError(lastError);
           if (wasHardTimeout) {
