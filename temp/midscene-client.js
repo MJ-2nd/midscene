@@ -87,7 +87,7 @@ class MidsceneClient {
         content: type + (desc ? ' - ' + desc : ''),
         timestamp: new Date()
       };
-      if (task.status === 'finished') {
+      if (task.status !== 'finished') {
         this.messages.push(msg);
       }
 

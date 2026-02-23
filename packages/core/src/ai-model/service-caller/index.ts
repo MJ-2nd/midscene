@@ -17,6 +17,7 @@ import {
   type IModelConfig,
   MIDSCENE_LANGFUSE_DEBUG,
   MIDSCENE_LANGSMITH_DEBUG,
+  MIDSCENE_MAX_THINKING_TOKENS,
   MIDSCENE_MODEL_MAX_TOKENS,
   OPENAI_MAX_TOKENS,
   type TModelFamily,
@@ -392,6 +393,14 @@ export async function callAI(
       } as ChatCompletionMessageParam;
     });
   })();
+
+  // Inject thinking_budget if MIDSCENE_MAX_THINKING_TOKENS is set
+  const maxThinkingTokens =
+    globalConfigManager.getEnvConfigValueAsNumber(MIDSCENE_MAX_THINKING_TOKENS);
+  if (maxThinkingTokens && deepThinkConfig.enable_thinking !== undefined) {
+    deepThinkConfig.thinking_budget = maxThinkingTokens;
+    debugCall(`thinking_budget set to ${maxThinkingTokens}`);
+  }
 
   try {
     debugCall(
