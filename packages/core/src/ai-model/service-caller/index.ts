@@ -395,8 +395,13 @@ export async function callAI(
 
 
   try {
+    const finalRequestConfig = {
+      model: modelName,
+      ...commonConfig,
+      ...deepThinkConfig,
+    };
     debugCall(
-      `sending ${isStreaming ? 'streaming ' : ''}request to ${modelName}`,
+      `sending ${isStreaming ? 'streaming ' : ''}request to ${modelName}, config: ${JSON.stringify(finalRequestConfig, null, 2)}, options.deepThink=${options?.deepThink}, globalDeepThink=${globalDeepThink}, effectiveDeepThink=${effectiveDeepThink}, modelFamily=${modelFamily}, maxThinkingTokens=${maxThinkingTokens}`,
     );
 
     if (isStreaming) {
