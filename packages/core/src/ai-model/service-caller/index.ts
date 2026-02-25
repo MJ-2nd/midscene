@@ -292,7 +292,7 @@ export async function callAI(
       debugCall('temperature is ignored for gpt-5');
       return undefined;
     }
-    return modelConfig.temperature ?? 0;
+    return modelConfig.temperature ?? 0.3;
   })();
 
   const isStreaming = options?.stream && options?.onChunk;
@@ -514,7 +514,7 @@ export async function callAI(
             {
               model: modelName,
               messages,
-              ...commonConfig,
+              ...retryConfig,
               ...deepThinkConfig,
             } as any,
             { signal: abortController.signal },
@@ -524,7 +524,7 @@ export async function callAI(
           timeCost = Date.now() - startTime;
 
           debugProfileStats(
-            `model, ${modelName}, mode, ${modelFamily || 'default'}, ui-tars-version, ${uiTarsModelVersion}, prompt-tokens, ${result.usage?.prompt_tokens || ''}, completion-tokens, ${result.usage?.completion_tokens || ''}, total-tokens, ${result.usage?.total_tokens || ''}, cost-ms, ${timeCost}, requestId, ${result._request_id || ''}, temperature, ${temperature ?? ''}`,
+            `model, ${modelName}, mode, ${modelFamily || 'default'}, ui-tars-version, ${uiTarsModelVersion}, prompt-tokens, ${result.usage?.prompt_tokens || ''}, completion-tokens, ${result.usage?.completion_tokens || ''}, total-tokens, ${result.usage?.total_tokens || ''}, cost-ms, ${timeCost}, requestId, ${result._request_id || ''}, temperature, ${attemptTemperature}, attempt, ${attempt}/${maxAttempts}`,
           );
 
           debugProfileDetail(
@@ -572,7 +572,7 @@ export async function callAI(
           }
           if (attempt < maxAttempts) {
             warnCall(
-              `AI call failed (attempt ${attempt}/${maxAttempts}), retrying in ${retryInterval}ms... Error: ${lastError.message}`,
+              `AI call failed (attempt ${attempt}/${maxAttempts}, temperature=${attemptTemperature}), retrying in ${retryInterval}ms... Error: ${lastError.message}`,
             );
             await new Promise((resolve) => setTimeout(resolve, retryInterval));
           }
