@@ -395,13 +395,8 @@ export async function callAI(
 
 
   try {
-    const finalRequestConfig = {
-      model: modelName,
-      ...commonConfig,
-      ...deepThinkConfig,
-    };
     debugCall(
-      `sending ${isStreaming ? 'streaming ' : ''}request to ${modelName}, config: ${JSON.stringify(finalRequestConfig, null, 2)}, options.deepThink=${options?.deepThink}, globalDeepThink=${globalDeepThink}, effectiveDeepThink=${effectiveDeepThink}, modelFamily=${modelFamily}, maxThinkingTokens=${maxThinkingTokens}`,
+      `sending ${isStreaming ? 'streaming ' : ''}request to ${modelName}, modelFamily=${modelFamily}`,
     );
 
     if (isStreaming) {
@@ -509,18 +504,6 @@ export async function callAI(
             { signal: attemptSignal },
           );
 
-        try {
-          const result = await completion.create(
-            {
-              model: modelName,
-              messages,
-              ...retryConfig,
-              ...deepThinkConfig,
-            } as any,
-            { signal: abortController.signal },
-          );
-
-          clearTimeout(abortTimer);
           timeCost = Date.now() - startTime;
 
           debugProfileStats(
@@ -558,7 +541,6 @@ export async function callAI(
 
           break; // Success, exit retry loop
         } catch (error) {
-          clearTimeout(abortTimer);
           lastError = error as Error;
           const wasHardTimeout = isHardTimeoutError(lastError);
           if (wasHardTimeout) {
