@@ -363,25 +363,6 @@ const DetailPanel = (): JSX.Element => {
           }}
         />
 
-        <div className="view-switcher-actions">
-          {viewType === VIEW_TYPE_MARKDOWN && markdownResult && (
-            <a
-              className="download-zip-link"
-              onClick={() =>
-                downloadMarkdownZip(
-                  markdownResult.markdown,
-                  markdownResult.attachments,
-                  safeName || 'report',
-                )
-              }
-            >
-              <DownloadOutlined /> Download ZIP
-            </a>
-          )}
-          <OpenInPlayground
-            context={(activeTask as ExecutionTaskPlanning)?.uiContext}
-          />
-        </div>
       </div>
       <div className="detail-content">{content}</div>
     </div>

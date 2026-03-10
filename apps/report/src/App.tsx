@@ -12,7 +12,6 @@ import {
 } from '@midscene/core';
 import { antiEscapeScriptTag } from '@midscene/shared/utils';
 import {
-  Logo,
   Player,
   globalThemeConfig,
   useGlobalPreference,
@@ -23,8 +22,6 @@ import GlobalHoverPreview from './components/global-hover-preview';
 import Sidebar from './components/sidebar';
 import { type DumpStoreType, useExecutionDump } from './components/store';
 import Timeline from './components/timeline';
-import ThemeDarkIcon from './icons/theme-dark.svg?react';
-import ThemeLightIcon from './icons/theme-light.svg?react';
 import type {
   PlaywrightTaskAttributes,
   PlaywrightTasks,
@@ -92,14 +89,6 @@ function Visualizer(props: VisualizerProps): JSX.Element {
   const replayAllMode = useExecutionDump((store) => store.replayAllMode);
   const setPlayingTaskId = useExecutionDump((store) => store.setPlayingTaskId);
   const setGroupedDump = useExecutionDump((store) => store.setGroupedDump);
-  const sdkVersion = useExecutionDump((store) => store.sdkVersion);
-  const modelBriefs = useExecutionDump((store) => store.modelBriefs);
-  const playwrightAttributes = useExecutionDump(
-    (store) => store.playwrightAttributes,
-  );
-  const modelBriefText = modelBriefs
-    .map((brief) => formatModelBrief(brief, modelBriefs.length > 1))
-    .join(', ');
   const reset = useExecutionDump((store) => store.reset);
   const [mainLayoutChangeFlag, setMainLayoutChangeFlag] = useState(0);
   const [sidebarWidth, setSidebarWidth] = useState(() => {
@@ -334,26 +323,6 @@ function Visualizer(props: VisualizerProps): JSX.Element {
         style={{ height: containerHeight }}
         data-theme={isDarkMode ? 'dark' : 'light'}
       >
-        <div className="page-nav">
-          <div className="page-nav-left">
-            <Logo />
-          </div>
-          <div className="page-nav-right">
-            <div className="page-nav-version">
-              {sdkVersion ? `v${sdkVersion}` : 'unknown version'}
-              {modelBriefText ? ` | ${modelBriefText}` : ''}
-            </div>
-            <div className="theme-divider" />
-            <button
-              type="button"
-              className="theme-toggle-button"
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              aria-label="Toggle theme"
-            >
-              {isDarkMode ? <ThemeDarkIcon /> : <ThemeLightIcon />}
-            </button>
-          </div>
-        </div>
         {mainContent}
       </div>
       <GlobalHoverPreview />
