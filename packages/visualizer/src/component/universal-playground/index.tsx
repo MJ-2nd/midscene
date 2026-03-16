@@ -603,6 +603,11 @@ export function UniversalPlayground({
           />
         </div>
 
+        <div className="version-info-section">
+          <span className="version-text">
+            Device farm AI extension
+          </span>
+        </div>
       </Form>
     </div>
   );
