@@ -54,9 +54,9 @@ export const getWelcomeMessageTemplate = (
 ): Omit<InfoListItem, 'id' | 'timestamp'> => ({
   type: 'system',
   content: `
-      Welcome to Midscene.js Playground!
+      Welcome to Device Farm Playground!
 
-      This is a panel for experimenting and testing Midscene.js features. You can use natural language instructions to operate the ${targetName}, such as clicking buttons, filling in forms, querying information, etc.
+      This is a panel for experimenting and testing device farm chatbot features. You can use natural language instructions to operate the ${targetName}, such as clicking buttons, filling in forms, querying information, etc.
 
       Please enter your instructions in the input box below to start experiencing.
     `,
