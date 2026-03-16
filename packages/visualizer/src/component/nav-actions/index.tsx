@@ -25,12 +25,16 @@ export function NavActions({
 }: NavActionsProps) {
   return (
     <div className={`nav-actions ${className}`}>
-      <Typography.Link href={githubUrl} target="_blank">
-        <GithubOutlined className="nav-icon" />
-      </Typography.Link>
-      <Typography.Link href={helpUrl} target="_blank">
-        <QuestionCircleOutlined className="nav-icon" />
-      </Typography.Link>
+      {githubUrl && (
+        <Typography.Link href={githubUrl} target="_blank">
+          <GithubOutlined className="nav-icon" />
+        </Typography.Link>
+      )}
+      {helpUrl && (
+        <Typography.Link href={helpUrl} target="_blank">
+          <QuestionCircleOutlined className="nav-icon" />
+        </Typography.Link>
+      )}
       {showEnvConfig && (
         <EnvConfig
           showTooltipWhenEmpty={showTooltipWhenEmpty}

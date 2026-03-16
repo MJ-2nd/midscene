@@ -117,7 +117,6 @@ export function BrowserExtensionPlayground({
       }}
       branding={{
         title: 'Playground',
-        version: `${extensionVersion}(SDK v${__SDK_VERSION__})`,
       }}
       className="chrome-extension-playground"
       dryMode={dryMode}

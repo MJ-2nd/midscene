@@ -38,9 +38,9 @@ export default defineConfig({
       html: {
         title: ({ entryName }) => {
           if (entryName === 'confirm') {
-            return 'Midscene Bridge';
+            return 'AiTest Bridge';
           }
-          return 'Midscene';
+          return 'AiTest';
         },
       },
       output: {

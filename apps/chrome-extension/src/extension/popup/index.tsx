@@ -161,11 +161,7 @@ export function PlaygroundPopup() {
             </span>
           </div>
           <div className="nav-right">
-            <NavActions
-              showTooltipWhenEmpty={false}
-              showModelName={false}
-              playgroundSDK={playgroundSDK}
-            />
+            <NavActions showTooltipWhenEmpty={false} showModelName={false} githubUrl="" helpUrl="" />
           </div>
         </div>
 

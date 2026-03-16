@@ -71,8 +71,7 @@ function ConfirmDialog() {
     <ConfigProvider theme={globalThemeConfig()}>
       <div className="confirm-dialog">
         <div className="confirm-header">
-          <img src="/icon128.png" alt="Midscene" className="confirm-logo" />
-          <h2 className="confirm-title">Midscene Bridge</h2>
+          <h2 className="confirm-title">AiTest Bridge</h2>
         </div>
 
         <div className="confirm-content">

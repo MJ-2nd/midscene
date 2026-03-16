@@ -603,14 +603,6 @@ export function UniversalPlayground({
           />
         </div>
 
-        {/* Version Info Section */}
-        {showVersionInfo && branding.version && (
-          <div className="version-info-section">
-            <span className="version-text">
-              Midscene.js version: {branding.version}
-            </span>
-          </div>
-        )}
       </Form>
     </div>
   );

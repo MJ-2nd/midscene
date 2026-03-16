@@ -1,5 +1,5 @@
 {
-  "name": "Midscene.js",
+  "name": "AiTest",
   "description": "Open-source SDK for automating web pages using natural language through AI.",
   "version": "1.53",
   "manifest_version": 3,
@@ -33,13 +33,10 @@
     }
   ],
   "action": {
-    "default_icon": "icon128.png",
-    "default_title": "Midscene.js"
+    "default_title": "AiTest"
   },
   "side_panel": {
     "default_path": "./index.html"
   },
-  "icons": {
-    "128": "icon128.png"
-  }
+  "icons": {}
 }
