@@ -4,9 +4,11 @@ import {
   type UniversalPlaygroundConfig,
 } from '@midscene/visualizer';
 import { Layout } from 'antd';
-import { useEffect, useState } from 'react';
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
-import { PlaygroundPreview } from './PlaygroundPreview';
+// Scrcpy preview panel disabled — useState/useEffect were for responsive split
+// import { useEffect, useState } from 'react';
+// Scrcpy preview panel disabled — kept for future use
+// import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+// import { PlaygroundPreview } from './PlaygroundPreview';
 import { PlaygroundThemeProvider } from './PlaygroundThemeProvider';
 import { usePlaygroundController } from './controller/usePlaygroundController';
 import ServerOfflineBackground from './icons/server-offline-background.svg';
@@ -39,7 +41,8 @@ export function PlaygroundApp({
   offlineStatusText = 'Server offline...',
   pollIntervalMs = 5000,
 }: PlaygroundAppProps) {
-  const [isNarrowScreen, setIsNarrowScreen] = useState(false);
+  // Scrcpy preview panel disabled — responsive split no longer needed
+  // const [isNarrowScreen, setIsNarrowScreen] = useState(false);
   const controller = usePlaygroundController({
     serverUrl,
     defaultDeviceType,
@@ -47,15 +50,15 @@ export function PlaygroundApp({
     pollIntervalMs,
   });
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsNarrowScreen(window.innerWidth <= 1024);
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // Scrcpy preview panel disabled — responsive resize listener no longer needed
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     setIsNarrowScreen(window.innerWidth <= 1024);
+  //   };
+  //   handleResize();
+  //   window.addEventListener('resize', handleResize);
+  //   return () => window.removeEventListener('resize', handleResize);
+  // }, []);
 
   if (!controller.state.serverOnline) {
     return (
@@ -80,6 +83,23 @@ export function PlaygroundApp({
     <PlaygroundThemeProvider>
       <Layout className="app-container playground-container">
         <Content className="app-content">
+          <div className="panel-content left-panel-content" style={{ height: '100%' }}>
+            <div className="playground-panel-header">
+              <div className="header-row" />
+            </div>
+
+            <div className="playground-panel-playground">
+              <PlaygroundConversationPanel
+                controller={controller}
+                appVersion={appVersion}
+                branding={branding}
+                playgroundConfig={playgroundConfig}
+                title={title}
+              />
+            </div>
+          </div>
+
+          {/* Scrcpy preview panel disabled — kept for future use
           <PanelGroup
             autoSaveId="playground-layout"
             direction={isNarrowScreen ? 'vertical' : 'horizontal'}
@@ -90,25 +110,9 @@ export function PlaygroundApp({
               minSize={isNarrowScreen ? 67 : 25}
               className="app-panel left-panel"
             >
-              <div className="panel-content left-panel-content">
-                <div className="playground-panel-header">
-                  <div className="header-row" />
-                </div>
-
-                <div className="playground-panel-playground">
-                  <PlaygroundConversationPanel
-                    controller={controller}
-                    appVersion={appVersion}
-                    branding={branding}
-                    playgroundConfig={playgroundConfig}
-                    title={title}
-                  />
-                </div>
-              </div>
+              ... left panel content ...
             </Panel>
-
             <PanelResizeHandle className="panel-resize-handle" />
-
             <Panel
               defaultSize={isNarrowScreen ? 33 : 68}
               minSize={isNarrowScreen ? 15 : 40}
@@ -125,6 +129,7 @@ export function PlaygroundApp({
               </div>
             </Panel>
           </PanelGroup>
+          */}
         </Content>
       </Layout>
     </PlaygroundThemeProvider>

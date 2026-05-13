@@ -1,7 +1,8 @@
 import path from 'node:path';
 import { launchPreparedPlaygroundPlatform } from '@midscene/playground';
 import { androidPlaygroundPlatform } from './platform';
-import ScrcpyServer from './scrcpy-server';
+// Scrcpy preview disabled — kept for future use
+// import ScrcpyServer from './scrcpy-server';
 
 const staticDir = path.join(__dirname, '../../static');
 
@@ -9,10 +10,11 @@ const main = async () => {
   const { default: open } = await import('open');
 
   try {
-    const scrcpyServer = new ScrcpyServer();
+    // Scrcpy preview disabled — kept for future use
+    // const scrcpyServer = new ScrcpyServer();
     const prepared = await androidPlaygroundPlatform.prepare({
       staticDir,
-      scrcpyServer,
+      // scrcpyServer,
     });
 
     console.log('🚀 Starting servers...');

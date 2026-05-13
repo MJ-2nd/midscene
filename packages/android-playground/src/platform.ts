@@ -7,20 +7,23 @@ import {
 import {
   type PlaygroundSessionManager,
   type PlaygroundSessionTarget,
-  createScrcpyPreviewDescriptor,
+  // Scrcpy preview disabled — kept for future use
+  // createScrcpyPreviewDescriptor,
   definePlaygroundPlatform,
 } from '@midscene/playground';
 import {
   PLAYGROUND_SERVER_PORT,
-  SCRCPY_SERVER_PORT,
+  // SCRCPY_SERVER_PORT,
 } from '@midscene/shared/constants';
 import { findAvailablePort } from '@midscene/shared/node';
-import type ScrcpyServer from './scrcpy-server';
+// Scrcpy preview disabled — kept for future use
+// import type ScrcpyServer from './scrcpy-server';
 
 export interface AndroidPlatformOptions {
   staticDir?: string;
-  scrcpyServer?: ScrcpyServer;
-  scrcpyPort?: number;
+  // Scrcpy preview disabled — kept for future use
+  // scrcpyServer?: ScrcpyServer;
+  // scrcpyPort?: number;
 }
 
 async function getAdbTargets(): Promise<PlaygroundSessionTarget[]> {
@@ -63,22 +66,17 @@ export const androidPlaygroundPlatform = definePlaygroundPlatform<
   async prepare(options) {
     const staticDir =
       options?.staticDir || path.join(__dirname, '../../static');
-    const [playgroundPort, resolvedScrcpyPort] = await Promise.all([
-      findAvailablePort(PLAYGROUND_SERVER_PORT),
-      options?.scrcpyPort
-        ? Promise.resolve(options.scrcpyPort)
-        : findAvailablePort(SCRCPY_SERVER_PORT),
-    ]);
-    const scrcpyPort = resolvedScrcpyPort;
+    const playgroundPort = await findAvailablePort(PLAYGROUND_SERVER_PORT);
+
+    // Scrcpy preview disabled — kept for future use
+    // const resolvedScrcpyPort = options?.scrcpyPort
+    //   ? options.scrcpyPort
+    //   : await findAvailablePort(SCRCPY_SERVER_PORT);
+    // const scrcpyPort = resolvedScrcpyPort;
 
     if (playgroundPort !== PLAYGROUND_SERVER_PORT) {
       console.log(
         `⚠️  Port ${PLAYGROUND_SERVER_PORT} is busy, using port ${playgroundPort} instead`,
-      );
-    }
-    if (scrcpyPort !== SCRCPY_SERVER_PORT) {
-      console.log(
-        `⚠️  Port ${SCRCPY_SERVER_PORT} is busy, using port ${scrcpyPort} instead`,
       );
     }
 
@@ -136,23 +134,25 @@ export const androidPlaygroundPlatform = definePlaygroundPlatform<
           return new AndroidAgent(device);
         };
 
-        if (options?.scrcpyServer) {
-          options.scrcpyServer.currentDeviceId = deviceId;
-        }
+        // Scrcpy preview disabled — kept for future use
+        // if (options?.scrcpyServer) {
+        //   options.scrcpyServer.currentDeviceId = deviceId;
+        // }
 
         const agent = await connectAgent();
 
         return {
           agent,
           agentFactory: connectAgent,
-          preview: createScrcpyPreviewDescriptor(
-            { scrcpyPort },
-            { title: 'Android device preview' },
-          ),
+          // Scrcpy preview disabled — kept for future use
+          // preview: createScrcpyPreviewDescriptor(
+          //   { scrcpyPort },
+          //   { title: 'Android device preview' },
+          // ),
           displayName: deviceId,
           metadata: {
             deviceId,
-            scrcpyPort,
+            // scrcpyPort,
           },
         };
       },
@@ -162,38 +162,40 @@ export const androidPlaygroundPlatform = definePlaygroundPlatform<
       platformId: 'android',
       title: 'Device Farm Playground',
       sessionManager,
-      sidecars: options?.scrcpyServer
-        ? [
-            {
-              id: 'android-scrcpy',
-              start: async () => {
-                await options.scrcpyServer?.launch(scrcpyPort);
-              },
-              stop: async () => {
-                options.scrcpyServer?.close();
-              },
-            },
-          ]
-        : undefined,
+      // Scrcpy preview disabled — sidecars kept for future use
+      // sidecars: options?.scrcpyServer
+      //   ? [
+      //       {
+      //         id: 'android-scrcpy',
+      //         start: async () => {
+      //           await options.scrcpyServer?.launch(scrcpyPort);
+      //         },
+      //         stop: async () => {
+      //           options.scrcpyServer?.close();
+      //         },
+      //       },
+      //     ]
+      //   : undefined,
       launchOptions: {
         port: playgroundPort,
         openBrowser: false,
         verbose: false,
         staticPath: staticDir,
-        configureServer(server) {
-          server.scrcpyPort = scrcpyPort;
-        },
+        // Scrcpy preview disabled — kept for future use
+        // configureServer(server) {
+        //   server.scrcpyPort = scrcpyPort;
+        // },
       },
-      preview: createScrcpyPreviewDescriptor(
-        {
-          scrcpyPort,
-        },
-        {
-          title: 'Android device preview',
-        },
-      ),
+      // Scrcpy preview disabled — kept for future use
+      // preview: createScrcpyPreviewDescriptor(
+      //   {
+      //     scrcpyPort,
+      //   },
+      //   {
+      //     title: 'Android device preview',
+      //   },
+      // ),
       metadata: {
-        scrcpyPort,
         sessionConnected: false,
         setupState: 'required',
       },
