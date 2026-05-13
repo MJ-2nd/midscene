@@ -446,15 +446,16 @@ const createStudioPlatformSpecs = ({
       const androidModule = await loadAndroidModule();
       return androidModule.androidPlaygroundPlatform.prepare({
         staticDir,
-        scrcpyServer: new androidModule.ScrcpyServer(
-          deviceDiscoveryService
-            ? {
-                deviceListSource: await createScrcpyDeviceListSource(
-                  deviceDiscoveryService,
-                ),
-              }
-            : undefined,
-        ),
+        // Scrcpy preview disabled — kept for future use
+        // scrcpyServer: new androidModule.ScrcpyServer(
+        //   deviceDiscoveryService
+        //     ? {
+        //         deviceListSource: await createScrcpyDeviceListSource(
+        //           deviceDiscoveryService,
+        //         ),
+        //       }
+        //     : undefined,
+        // ),
       });
     },
   },
@@ -609,16 +610,17 @@ export function createMultiPlatformRuntimeService({
                   prepare: async (staticDir) =>
                     runtimeModules.androidPlaygroundPlatform.prepare({
                       staticDir,
-                      scrcpyServer: new runtimeModules.ScrcpyServer(
-                        deviceDiscoveryService
-                          ? {
-                              deviceListSource:
-                                await createScrcpyDeviceListSource(
-                                  deviceDiscoveryService,
-                                ),
-                            }
-                          : undefined,
-                      ),
+                      // Scrcpy preview disabled — kept for future use
+                      // scrcpyServer: new runtimeModules.ScrcpyServer(
+                      //   deviceDiscoveryService
+                      //     ? {
+                      //         deviceListSource:
+                      //           await createScrcpyDeviceListSource(
+                      //             deviceDiscoveryService,
+                      //           ),
+                      //       }
+                      //     : undefined,
+                      // ),
                     }),
                 },
                 {
