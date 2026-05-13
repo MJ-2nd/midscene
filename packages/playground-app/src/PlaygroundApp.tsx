@@ -1,5 +1,6 @@
 import {
   type DeviceType,
+  NavActions,
   type PlaygroundBranding,
   type UniversalPlaygroundConfig,
 } from '@midscene/visualizer';
@@ -85,7 +86,15 @@ export function PlaygroundApp({
         <Content className="app-content">
           <div className="panel-content left-panel-content" style={{ height: '100%' }}>
             <div className="playground-panel-header">
-              <div className="header-row" />
+              <div className="header-row">
+                    <NavActions
+                      showTooltipWhenEmpty={false}
+                      showModelName={false}
+                      githubUrl=""
+                      helpUrl=""
+                      playgroundSDK={controller.state.playgroundSDK}
+                    />
+                  </div>
             </div>
 
             <div className="playground-panel-playground">
