@@ -484,7 +484,7 @@ export async function callAI(
     } else {
       // Non-streaming with retry logic
       const retryCount = modelConfig.retryCount ?? 10;
-      const retryInterval = modelConfig.retryInterval ?? 2000;
+      const retryInterval = modelConfig.retryInterval ?? 10000;
       const maxAttempts = retryCount + 1; // retryCount=10 means 11 total attempts (1 initial + 10 retries)
       var attemptTemperature = 0;
 
@@ -557,6 +557,7 @@ export async function callAI(
             warnCall(
               `AI call failed (attempt ${attempt}/${maxAttempts}, temperature=${attemptTemperature}), retrying in ${retryInterval}ms... Error: ${lastError.message}`,
             );
+            attemptTemperature += 0.1
             await new Promise((resolve) => setTimeout(resolve, retryInterval));
           }
         } finally {
