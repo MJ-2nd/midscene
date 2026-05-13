@@ -1,7 +1,5 @@
 import {
   type DeviceType,
-  Logo,
-  NavActions,
   type PlaygroundBranding,
   type UniversalPlaygroundConfig,
 } from '@midscene/visualizer';
@@ -37,7 +35,7 @@ export function PlaygroundApp({
   defaultDeviceType = 'web',
   branding,
   playgroundConfig,
-  offlineTitle = 'Midscene Playground',
+  offlineTitle = 'Device Farm Playground',
   offlineStatusText = 'Server offline...',
   pollIntervalMs = 5000,
 }: PlaygroundAppProps) {
@@ -64,7 +62,6 @@ export function PlaygroundApp({
       <PlaygroundThemeProvider>
         <div className="server-offline-container">
           <div className="server-offline-message">
-            <Logo />
             <div className="server-offline-content">
               <div className="server-offline-icon">
                 <ServerOfflineBackground className="icon-background" />
@@ -95,14 +92,7 @@ export function PlaygroundApp({
             >
               <div className="panel-content left-panel-content">
                 <div className="playground-panel-header">
-                  <div className="header-row">
-                    <Logo />
-                    <NavActions
-                      showTooltipWhenEmpty={false}
-                      showModelName={false}
-                      playgroundSDK={controller.state.playgroundSDK}
-                    />
-                  </div>
+                  <div className="header-row" />
                 </div>
 
                 <div className="playground-panel-playground">

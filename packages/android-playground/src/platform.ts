@@ -58,7 +58,7 @@ export const androidPlaygroundPlatform = definePlaygroundPlatform<
   AndroidPlatformOptions | undefined
 >({
   id: 'android',
-  title: 'Midscene Android Playground',
+  title: 'Device Farm Playground',
   description: 'Android playground platform descriptor',
   async prepare(options) {
     const staticDir =
@@ -86,7 +86,7 @@ export const androidPlaygroundPlatform = definePlaygroundPlatform<
       async getSetupSchema() {
         const { targets, error } = await getAdbTargetsSafe();
         return {
-          title: 'Welcome to\nMidscene.js Playground!',
+          title: 'Welcome to\nDevice farm AI support!',
           description:
             'Select an available ADB device to create the current Android Agent',
           primaryActionLabel: 'Create Agent',
@@ -160,7 +160,7 @@ export const androidPlaygroundPlatform = definePlaygroundPlatform<
 
     return {
       platformId: 'android',
-      title: 'Midscene Android Playground',
+      title: 'Device Farm Playground',
       sessionManager,
       sidecars: options?.scrcpyServer
         ? [

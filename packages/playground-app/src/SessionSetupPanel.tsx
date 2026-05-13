@@ -7,7 +7,6 @@ import { Alert, Form, Input, InputNumber, Radio, Select } from 'antd';
 import type { FormInstance } from 'antd';
 import type { PlaygroundFormValues } from './controller/types';
 import DropdownChevron from './icons/dropdown-chevron.svg';
-import MidsceneLogo from './icons/midscene-logo.svg';
 import type { PlaygroundSessionViewState } from './session-state';
 import './SessionSetupPanel.less';
 
@@ -153,7 +152,6 @@ export function SessionSetupPanel({
   return (
     <div className="session-setup-panel">
       <div className="session-setup-card">
-        <MidsceneLogo aria-hidden="true" className="session-setup-logo" />
         <h1 className="session-setup-title">{title}</h1>
         <p className="session-setup-description">{description}</p>
 

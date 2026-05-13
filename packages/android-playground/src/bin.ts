@@ -22,7 +22,7 @@ const main = async () => {
     const playgroundServer = playgroundResult.server;
 
     console.log('');
-    console.log('✨ Midscene Android Playground is ready!');
+    console.log('✨ Device Farm Playground is ready!');
     console.log(`🎮 Playground: http://localhost:${playgroundServer.port}`);
     console.log(`🔑 Generated Server ID: ${playgroundServer.id}`);
     console.log('');
