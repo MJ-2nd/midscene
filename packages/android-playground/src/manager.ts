@@ -13,7 +13,16 @@ import express from 'express';
 
 // --- Configuration ---
 
+export type AiConfig = Record<string, string>;
+
 const MANAGER_PORT_DEFAULT = 5700;
+
+const DEFAULT_AI_CONFIG: AiConfig = {
+  MIDSCENE_MODEL_BASE_URL: 'http://10.112.165.53:11435/v1',
+  MIDSCENE_MODEL_API_KEY: 'ollama',
+  MIDSCENE_MODEL_NAME: 'qwen3.6:27b',
+  MIDSCENE_MODEL_FAMILY: 'qwen3.6',
+};
 
 // Port pool: fixed range of ports available for playground instances.
 // Adjust POOL_START and POOL_SIZE to control capacity.
@@ -101,6 +110,23 @@ async function adbConnect(deviceId: string): Promise<void> {
   );
 }
 
+async function pushDefaultConfig(
+  port: number,
+  aiConfig: AiConfig,
+): Promise<void> {
+  const url = `http://127.0.0.1:${port}/config`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ aiConfig }),
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Failed to push default AI config to port ${port}: ${body}`);
+  }
+  console.log(`  Default AI config applied to playground on port ${port}`);
+}
+
 function createAgentFactory(deviceId: string) {
   return async () => {
     const device = new AndroidDevice(deviceId);
@@ -112,6 +138,7 @@ function createAgentFactory(deviceId: string) {
 async function launchInstance(
   deviceId: string,
   staticDir: string,
+  defaultAiConfig?: AiConfig,
 ): Promise<ManagedInstance> {
   // Prevent duplicate: same device already has a running instance
   for (const instance of instances.values()) {
@@ -165,6 +192,12 @@ async function launchInstance(
   };
 
   instances.set(instance.port, instance);
+
+  // Apply default AI config (model name, base URL, etc.) if provided
+  if (defaultAiConfig && Object.keys(defaultAiConfig).length > 0) {
+    await pushDefaultConfig(instance.port, defaultAiConfig);
+  }
+
   return instance;
 }
 
@@ -191,6 +224,7 @@ function listInstances() {
 export async function startManager(
   managerPort: number = MANAGER_PORT_DEFAULT,
   staticDir?: string,
+  defaultAiConfig: AiConfig = DEFAULT_AI_CONFIG,
 ) {
   const resolvedStaticDir =
     staticDir || path.join(__dirname, '../../static');
@@ -210,7 +244,7 @@ export async function startManager(
     }
 
     try {
-      const instance = await launchInstance(deviceId, resolvedStaticDir);
+      const instance = await launchInstance(deviceId, resolvedStaticDir, defaultAiConfig);
       console.log(
         `  Started playground for device "${deviceId}" on port ${instance.port}`,
       );
