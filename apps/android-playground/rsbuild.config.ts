@@ -35,7 +35,9 @@ export default defineConfig({
       },
       html: {
         title: 'Device Farm Android Playground',
-        favicon: false,
+        tags: [
+          { tag: 'link', attrs: { rel: 'icon', href: 'data:,' } },
+        ],
       },
     },
   },
