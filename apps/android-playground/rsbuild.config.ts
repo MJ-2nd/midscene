@@ -35,7 +35,6 @@ export default defineConfig({
       },
       html: {
         title: 'Device Farm Android Playground',
-        favicon: false,
       },
     },
   },
@@ -68,7 +67,6 @@ export default defineConfig({
       path.join(__dirname, 'dist'),
       path.join(__dirname, '../../packages/android-playground/static'),
       'copy-android-playground-static',
-      undefined,
     ),
     pluginTypeCheck(),
     pluginWorkspaceDev({
