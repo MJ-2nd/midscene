@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process';
 import path from 'node:path';
 import {
   AndroidAgent,
@@ -44,6 +45,62 @@ function acquirePort(): number | null {
   return null; // pool exhausted
 }
 
+/**
+ * Check if a deviceId looks like a remote device (IP:PORT format).
+ */
+function isRemoteDevice(deviceId: string): boolean {
+  return /^\d{1,3}(\.\d{1,3}){3}(:\d+)?$/.test(deviceId);
+}
+
+const ADB_CONNECT_MAX_RETRIES = 3;
+const ADB_CONNECT_RETRY_DELAY_MS = 3_000;
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Run `adb connect <deviceId>` for remote devices and verify the connection.
+ * Retries up to 3 times with a 3-second delay between attempts.
+ * Throws if all attempts fail.
+ */
+async function adbConnect(deviceId: string): Promise<void> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 1; attempt <= ADB_CONNECT_MAX_RETRIES; attempt++) {
+    console.log(`  Connecting to remote device "${deviceId}" via adb (attempt ${attempt}/${ADB_CONNECT_MAX_RETRIES})...`);
+    try {
+      const output = execSync(`adb connect ${deviceId}`, {
+        encoding: 'utf-8',
+        timeout: 15_000,
+      }).trim();
+      console.log(`  adb connect output: ${output}`);
+
+      if (output.includes('cannot connect') || output.includes('failed')) {
+        throw new Error(`adb connect failed: ${output}`);
+      }
+
+      // Success
+      return;
+    } catch (error) {
+      lastError =
+        error instanceof Error
+          ? error
+          : new Error(String(error));
+      console.error(`  adb connect attempt ${attempt} failed: ${lastError.message}`);
+
+      if (attempt < ADB_CONNECT_MAX_RETRIES) {
+        console.log(`  Retrying in ${ADB_CONNECT_RETRY_DELAY_MS / 1000}s...`);
+        await delay(ADB_CONNECT_RETRY_DELAY_MS);
+      }
+    }
+  }
+
+  throw new Error(
+    `Failed to connect to device "${deviceId}" after ${ADB_CONNECT_MAX_RETRIES} attempts: ${lastError!.message}`,
+  );
+}
+
 function createAgentFactory(deviceId: string) {
   return async () => {
     const device = new AndroidDevice(deviceId);
@@ -70,6 +127,13 @@ async function launchInstance(
     throw new Error(
       `Port pool exhausted (max ${POOL_SIZE} instances). Close an existing instance first.`,
     );
+  }
+
+  // For remote devices, establish adb connection first
+  if (isRemoteDevice(deviceId)) {
+    await adbConnect(deviceId);
+    console.log('  Waiting 5s for device to be recognized...');
+    await delay(5_000);
   }
 
   const agentFactory = createAgentFactory(deviceId);
