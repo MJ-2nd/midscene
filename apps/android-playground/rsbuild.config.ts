@@ -34,7 +34,8 @@ export default defineConfig({
         sourceMap: true,
       },
       html: {
-        title: 'Midscene Android Playground',
+        title: 'Device Farm Android Playground',
+        favicon: false,
       },
     },
   },
@@ -67,7 +68,7 @@ export default defineConfig({
       path.join(__dirname, 'dist'),
       path.join(__dirname, '../../packages/android-playground/static'),
       'copy-android-playground-static',
-      path.join(__dirname, 'src', 'favicon.ico'),
+      undefined,
     ),
     pluginTypeCheck(),
     pluginWorkspaceDev({

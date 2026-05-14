@@ -9,7 +9,7 @@ export default function App() {
       serverUrl={window.location.origin}
       appVersion={__APP_VERSION__}
       title="Android Playground"
-      offlineTitle="Midscene Android Playground"
+      offlineTitle="Device Farm Android Playground"
       defaultDeviceType="android"
       branding={{
         title: 'Android Playground',
