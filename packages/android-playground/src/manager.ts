@@ -22,6 +22,7 @@ const DEFAULT_AI_CONFIG: AiConfig = {
   MIDSCENE_MODEL_API_KEY: 'ollama',
   MIDSCENE_MODEL_NAME: 'qwen3.6:27b',
   MIDSCENE_MODEL_FAMILY: 'qwen3.6',
+  MIDSCENE_MODEL_RETRY_INTERVAL: '10000'
 };
 
 // Port pool: fixed range of ports available for playground instances.

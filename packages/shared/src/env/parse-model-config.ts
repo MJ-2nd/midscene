@@ -257,9 +257,9 @@ export const parseOpenaiSdkConfig = ({
       return val;
     })(),
     retryInterval: (() => {
-      if (!provider[keys.retryInterval]) return 2000;
+      if (!provider[keys.retryInterval]) return 10000;
       const val = Number(provider[keys.retryInterval]);
-      if (!Number.isFinite(val)) return 2000;
+      if (!Number.isFinite(val)) return 10000;
       if (val < 0)
         throw new Error(
           `${keys.retryInterval} must be non-negative, got ${val}`,
