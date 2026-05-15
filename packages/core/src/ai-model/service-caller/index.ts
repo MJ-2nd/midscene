@@ -486,7 +486,7 @@ export async function callAI(
       const retryCount = modelConfig.retryCount ?? 10;
       const retryInterval = modelConfig.retryInterval ?? 10000;
       const maxAttempts = retryCount + 1; // retryCount=10 means 11 total attempts (1 initial + 10 retries)
-      var attemptTemperature = 0;
+      var attemptTemperature = 0.2;
 
       let lastError: Error | undefined;
 
