@@ -4,6 +4,9 @@ midscene_run/report
 midscene_run/tmp
 static/
 
+# Standalone bundle output
+standalone/
+
 # Scrcpy server binary (downloaded during build)
 bin/scrcpy-server
 bin/scrcpy-server.version

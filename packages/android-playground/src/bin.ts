@@ -1,10 +1,15 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import { launchPreparedPlaygroundPlatform } from '@midscene/playground';
 import { androidPlaygroundPlatform } from './platform';
 // Scrcpy preview disabled — kept for future use
 // import ScrcpyServer from './scrcpy-server';
 
-const staticDir = path.join(__dirname, '../../static');
+const staticDir =
+  [
+    path.join(__dirname, 'static'), // standalone bundle
+    path.join(__dirname, '../../static'), // normal dist/lib layout
+  ].find((d) => fs.existsSync(d)) || path.join(__dirname, '../../static');
 
 const isManagerMode = process.argv.includes('--manager');
 

@@ -1,9 +1,6 @@
 import { execSync } from 'node:child_process';
 import path from 'node:path';
-import {
-  AndroidAgent,
-  AndroidDevice,
-} from '@midscene/android';
+import { AndroidAgent, AndroidDevice } from '@midscene/android';
 import {
   type LaunchPlaygroundResult,
   launchPreparedPlaygroundPlatform,
@@ -22,7 +19,7 @@ const DEFAULT_AI_CONFIG: AiConfig = {
   MIDSCENE_MODEL_API_KEY: 'ollama',
   MIDSCENE_MODEL_NAME: 'qwen3.6:27b',
   MIDSCENE_MODEL_FAMILY: 'qwen3.6',
-  MIDSCENE_MODEL_RETRY_INTERVAL: '10000'
+  MIDSCENE_MODEL_RETRY_INTERVAL: '10000',
 };
 
 // Port pool: fixed range of ports available for playground instances.
@@ -78,7 +75,9 @@ async function adbConnect(deviceId: string): Promise<void> {
   let lastError: Error | null = null;
 
   for (let attempt = 1; attempt <= ADB_CONNECT_MAX_RETRIES; attempt++) {
-    console.log(`  Connecting to remote device "${deviceId}" via adb (attempt ${attempt}/${ADB_CONNECT_MAX_RETRIES})...`);
+    console.log(
+      `  Connecting to remote device "${deviceId}" via adb (attempt ${attempt}/${ADB_CONNECT_MAX_RETRIES})...`,
+    );
     try {
       const output = execSync(`adb connect ${deviceId}`, {
         encoding: 'utf-8',
@@ -93,11 +92,10 @@ async function adbConnect(deviceId: string): Promise<void> {
       // Success
       return;
     } catch (error) {
-      lastError =
-        error instanceof Error
-          ? error
-          : new Error(String(error));
-      console.error(`  adb connect attempt ${attempt} failed: ${lastError.message}`);
+      lastError = error instanceof Error ? error : new Error(String(error));
+      console.error(
+        `  adb connect attempt ${attempt} failed: ${lastError.message}`,
+      );
 
       if (attempt < ADB_CONNECT_MAX_RETRIES) {
         console.log(`  Retrying in ${ADB_CONNECT_RETRY_DELAY_MS / 1000}s...`);
@@ -123,7 +121,9 @@ async function pushDefaultConfig(
   });
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`Failed to push default AI config to port ${port}: ${body}`);
+    throw new Error(
+      `Failed to push default AI config to port ${port}: ${body}`,
+    );
   }
   console.log(`  Default AI config applied to playground on port ${port}`);
 }
@@ -228,7 +228,11 @@ export async function startManager(
   defaultAiConfig: AiConfig = DEFAULT_AI_CONFIG,
 ) {
   const resolvedStaticDir =
-    staticDir || path.join(__dirname, '../../static');
+    staticDir ||
+    [path.join(__dirname, 'static'), path.join(__dirname, '../../static')].find(
+      (d) => require('node:fs').existsSync(d),
+    ) ||
+    path.join(__dirname, '../../static');
 
   const app = express();
   app.use(cors());
@@ -245,7 +249,11 @@ export async function startManager(
     }
 
     try {
-      const instance = await launchInstance(deviceId, resolvedStaticDir, defaultAiConfig);
+      const instance = await launchInstance(
+        deviceId,
+        resolvedStaticDir,
+        defaultAiConfig,
+      );
       console.log(
         `  Started playground for device "${deviceId}" on port ${instance.port}`,
       );
@@ -255,8 +263,7 @@ export async function startManager(
         createdAt: instance.createdAt,
       });
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : String(error);
+      const message = error instanceof Error ? error.message : String(error);
       console.error(`  Failed to launch for "${deviceId}": ${message}`);
       res.status(500).json({ error: message });
     }
@@ -275,13 +282,10 @@ export async function startManager(
       const instance = instances.get(port);
       const deviceId = instance?.deviceId;
       await closeInstance(port);
-      console.log(
-        `  Closed playground on port ${port} (device: ${deviceId})`,
-      );
+      console.log(`  Closed playground on port ${port} (device: ${deviceId})`);
       res.json({ status: 'closed', port });
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : String(error);
+      const message = error instanceof Error ? error.message : String(error);
       res.status(404).json({ error: message });
     }
   });
@@ -306,7 +310,9 @@ export async function startManager(
       console.log('');
       console.log('=== Device Farm Playground Manager ===');
       console.log(`  Manager API:  http://0.0.0.0:${managerPort}`);
-      console.log(`  Port pool:    ${POOL_START}-${POOL_START + POOL_SIZE - 1} (${POOL_SIZE} slots)`);
+      console.log(
+        `  Port pool:    ${POOL_START}-${POOL_START + POOL_SIZE - 1} (${POOL_SIZE} slots)`,
+      );
       console.log('');
       console.log('  Endpoints:');
       console.log(
@@ -315,9 +321,7 @@ export async function startManager(
       console.log(
         '    DELETE /playground/:port   — Close a playground instance',
       );
-      console.log(
-        '    GET    /playgrounds        — List running instances',
-      );
+      console.log('    GET    /playgrounds        — List running instances');
       console.log('');
       resolve();
     });

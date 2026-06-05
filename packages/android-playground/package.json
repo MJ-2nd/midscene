@@ -23,6 +23,7 @@
     "dev:server": "npm run build && ./bin/playground",
     "prebuild": "node ../android/scripts/download-scrcpy-server.mjs --target=bin/scrcpy-server",
     "build": "rslib build",
+    "build:standalone": "node scripts/build-standalone.mjs",
     "build:watch": "rslib build --watch --no-clean",
     "prepack": "node ../android/scripts/download-scrcpy-server.mjs --target=bin/scrcpy-server"
   },
