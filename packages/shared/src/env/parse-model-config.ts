@@ -244,9 +244,7 @@ export const parseOpenaiSdkConfig = ({
     modelName: modelName!,
     modelDescription,
     intent: '-' as any,
-    timeout: provider[keys.timeout]
-      ? Number(provider[keys.timeout])
-      : 10000,
+    timeout: provider[keys.timeout] ? Number(provider[keys.timeout]) : 30000,
     temperature,
     retryCount: (() => {
       if (!provider[keys.retryCount]) return 10;
