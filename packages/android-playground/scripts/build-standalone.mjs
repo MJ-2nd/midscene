@@ -45,7 +45,19 @@ await build({
 
 console.log('Bundle created: standalone/bin.mjs');
 
-// 2. Copy static assets alongside the bundle
+// 2. Copy wasm files required at runtime
+const wasmSrc = path.resolve(
+  pkgDir,
+  '../../node_modules/.pnpm/@silvia-odwyer+photon-node@0.3.3/node_modules/@silvia-odwyer/photon-node/photon_rs_bg.wasm',
+);
+if (existsSync(wasmSrc)) {
+  cpSync(wasmSrc, path.join(outDir, 'photon_rs_bg.wasm'));
+  console.log('Copied photon_rs_bg.wasm');
+} else {
+  console.warn('WARNING: photon_rs_bg.wasm not found at expected path');
+}
+
+// 3. Copy static assets alongside the bundle
 const staticSrc = path.join(pkgDir, 'static');
 const staticDest = path.join(outDir, 'static');
 
