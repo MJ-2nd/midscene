@@ -1,4 +1,5 @@
 import { execSync } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 import { AndroidAgent, AndroidDevice } from '@midscene/android';
 import {
@@ -230,7 +231,7 @@ export async function startManager(
   const resolvedStaticDir =
     staticDir ||
     [path.join(__dirname, 'static'), path.join(__dirname, '../../static')].find(
-      (d) => require('node:fs').existsSync(d),
+      (d) => fs.existsSync(d),
     ) ||
     path.join(__dirname, '../../static');
 

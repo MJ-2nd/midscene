@@ -57,7 +57,23 @@ if (existsSync(wasmSrc)) {
   console.warn('WARNING: photon_rs_bg.wasm not found at expected path');
 }
 
-// 3. Copy static assets alongside the bundle
+// 3. Copy yadb binary required at runtime for text input.
+// The bundled code falls back to looking for bin/yadb relative to bin.mjs.
+const androidBinDir = path.resolve(pkgDir, '../android/bin');
+const standaloneBinDir = path.join(outDir, 'bin');
+mkdirSync(standaloneBinDir, { recursive: true });
+
+for (const binFile of ['yadb', '.yadb-version']) {
+  const src = path.join(androidBinDir, binFile);
+  if (existsSync(src)) {
+    cpSync(src, path.join(standaloneBinDir, binFile));
+    console.log(`Copied bin/${binFile}`);
+  } else {
+    console.warn(`WARNING: bin/${binFile} not found at ${src}`);
+  }
+}
+
+// 4. Copy static assets alongside the bundle
 const staticSrc = path.join(pkgDir, 'static');
 const staticDest = path.join(outDir, 'static');
 

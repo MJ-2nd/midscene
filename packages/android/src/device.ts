@@ -3,6 +3,7 @@ import { execFile } from 'node:child_process';
 import fs, { unlink } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   type DeviceAction,
   type InterfaceType,
@@ -1505,11 +1506,20 @@ ${Object.keys(size)
     // Push the YADB tool to the device only once
     if (!this.yadbPushed) {
       const adb = await this.getAdb();
-      // Use a more reliable path resolution method
-      const androidPkgJson = createRequire(import.meta.url).resolve(
-        '@midscene/android/package.json',
-      );
-      const yadbBin = path.join(path.dirname(androidPkgJson), 'bin', 'yadb');
+      let yadbBin: string;
+      try {
+        const androidPkgJson = createRequire(import.meta.url).resolve(
+          '@midscene/android/package.json',
+        );
+        yadbBin = path.join(path.dirname(androidPkgJson), 'bin', 'yadb');
+      } catch {
+        // Fallback for standalone bundle where @midscene/android is inlined
+        yadbBin = path.join(
+          path.dirname(fileURLToPath(import.meta.url)),
+          'bin',
+          'yadb',
+        );
+      }
       await adb.push(yadbBin, '/data/local/tmp');
       this.yadbPushed = true;
     }
